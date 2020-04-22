@@ -26,7 +26,7 @@ var connection = mysql.createConnection({
 
   // Your password
   password: process.env.USER_PWD,
-  database: "employee",
+  database: "employee_db",
 });
 
 connection.connect(function (err) {
@@ -108,8 +108,7 @@ const inquireQ = () => {
     .then((response) => {
       const moreTeam = response.moreTeam;
       switch (moreTeam) {
-        case "See Employee":  
-
+        case "See Employee":
           break;
 
         case "Add Employee":
@@ -127,7 +126,7 @@ const inquireQ = () => {
         //   case "Remove Role":
         //   inquirer.prompt(questions).then((response) => {}); break;
         case "See Department":
-            // connection.query("SELECT * FROM products")  
+          // connection.query("SELECT * FROM products")
           break;
         //   case "Add Department":
         //   inquirer.prompt(questions).then((response) => {}); break;
@@ -147,7 +146,6 @@ const inquireQ = () => {
       }
     });
 };
-
 
 // REFERENCE!!!
 
@@ -222,27 +220,23 @@ const inquireQ = () => {
 //   });
 // }
 
-
-
-
-
 // IMPORTANTE
 // inquirer.prompt(questions).then((response) => {
-    //     // if (response.role === "Manager") {
-    //     //   inquirer
-    //     //     .prompt({
-    //     //       type: "input",
-    //     //       message: "What is your office number?",
-    //     //       name: "officeNum",
-    //     //       validate: (value) => {
-    //     //         if (validator.isInt(value)) {
-    //     //           return true;
-    //     //         }
-    //     //         return "Please enter a valid office number";
-    //     //       },
-    //     //     })
-    //     //     .then((managerOffice) => {
-    //     //       inquireQ();
-    //     //     });
-    //     // }
-    //   });
+//     // if (response.role === "Manager") {
+//     //   inquirer
+//     //     .prompt({
+//     //       type: "input",
+//     //       message: "What is your office number?",
+//     //       name: "officeNum",
+//     //       validate: (value) => {
+//     //         if (validator.isInt(value)) {
+//     //           return true;
+//     //         }
+//     //         return "Please enter a valid office number";
+//     //       },
+//     //     })
+//     //     .then((managerOffice) => {
+//     //       inquireQ();
+//     //     });
+//     // }
+//   });
