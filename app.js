@@ -1,33 +1,14 @@
-// to run the app
-// create 3 tables,
-// have some dummy info
-// console.log do it instead console.table
-// npm mysql
-
-require("dotenv").config();
 // importing internal node packages
 const path = require("path");
 const fs = require("fs");
 
 // importing external npm packages
-const inquirer = require("inquirer");
+const ask = require("inquirer");
 const validator = require("validator");
 const CFonts = require("cfonts");
-var mysql = require("mysql");
 
-var connection = mysql.createConnection({
-  host: "localhost",
-
-  // Your port; if not 3306
-  port: 3306,
-
-  // Your username
-  user: process.env.USER_NAME,
-
-  // Your password
-  password: process.env.USER_PWD,
-  database: "employee_db",
-});
+// importing local files
+var connection = require("./connection");
 
 connection.connect(function (err) {
   if (err) throw err;
@@ -35,115 +16,190 @@ connection.connect(function (err) {
   inquireQ();
 });
 
-// inquirer questions
-const questions = [
+const addDept = [
   {
     type: "input",
-    message: "What is your first name?",
-    name: "firstName",
+    message: "Please enter the department you wish to add:",
+    name: "department",
     validate: (value) => {
-      var regName = /^[a-zA-Z]+$/;
-      if (!regName.test(value)) {
-        return "Please enter your full name (first name)";
+      if (validator.isAlpha(value)) {
+        return true;
       }
-      return true;
+      return "Please enter a valid department (a-z)";
     },
   },
+];
+
+const addRole = [
   {
     type: "input",
-    message: "What is your last name?",
-    name: "lastName",
+    message: "Please enter the role you wish to add:",
+    name: "title",
     validate: (value) => {
-      var regName = /^[a-zA-Z]+$/;
-      if (!regName.test(value)) {
-        return "Please enter your full name (last name)";
+      if (validator.isAlpha(value)) {
+        return true;
       }
-      return true;
+      return "Please enter a valid role (a-z)";
     },
   },
 
   {
     type: "input",
-    message: "What is your employee id?",
-    name: "id",
+    message: "Please enter the salary for this role:",
+    name: "salary",
     validate: (value) => {
       if (validator.isInt(value)) {
         return true;
       }
-      return "Please enter a valid ID Number.";
+      return "Please enter a valid salary ex:(3000.00)";
     },
   },
   {
     type: "input",
-    message: "Please enter your email:",
-    name: "email",
+    message: "Please enter the department ID for this role:",
+    name: "department_id",
     validate: (value) => {
-      if (validator.isEmail(value)) {
+      if (validator.isInt(value)) {
         return true;
       }
-      return "Please enter a valid e-mail address.";
+      return "Please enter a valid department ID(number)";
     },
-  },
-  {
-    type: "list",
-    message: "What type of employee are you?",
-    choices: ["Manager", "Engineer", "Intern"],
-    name: "role",
   },
 ];
 
 // main function
 const inquireQ = () => {
-  inquirer
+  ask
     .prompt([
       // build or finish
       {
         type: "list",
         message: "What would you like to do?",
         choices: [
-          "See Employee",
-          //   "Add Employee",
-          //   "Remove Employee",
-          //   "Updated Employee Role",
-          "See Roles",
-          //   "Add Role",
-          //   "Remove Role",
-          "See Department",
-          //   "Add Department",
-          //   "Remove Department",
-          //   "See Manager Employees",
-          //   "View Department Budget",
-          "Done",
+          "Add Department",
+          "View Departments",
+          "Delete Departments",
+          "Add Roles",
+          "View Roles",
+          "Delete Roles",
+          "Add Employees",
+          "View Employees",
+          "Updated Employee Role",
+          "Update Employee Managers",
+          "Delete Employee",
+          "Finish",
         ],
-        name: "moreTeam",
+        name: "userFunction",
       },
     ])
-    .then((response) => {
-      const moreTeam = response.moreTeam;
-      switch (moreTeam) {
-        case "See Employee":
+    .then((res) => {
+      const userFunction = res.userFunction;
+      // switch case for all options
+      switch (userFunction) {
+        case "Add Department":
+          ask.prompt(addDept).then((answer) => {
+            connection.query(
+              "INSERT INTO departments SET ?",
+              {
+                name: answer.department,
+              },
+              function (err) {
+                if (err) throw err;
+                console.log("Successfully added department!");
+                // show the departments
+                connection.query("SELECT * FROM departments", function (
+                  err,
+                  res
+                ) {
+                  if (err) throw err;
+                  res.length > 0 && console.table(res);
+                  inquireQ();
+                });
+              }
+            );
+          });
           break;
 
+        case "View Departments":
+          connection.query("SELECT * FROM departments", function (err, res) {
+            if (err) throw err;
+            res.length > 0 && console.table(res);
+            inquireQ();
+          });
+          break;
+
+        case "Add Role":
+          ask.prompt(addRole).then((answer) => {
+            connection.query(
+              "INSERT INTO SET ?",
+              {
+                title: answer.title,
+                salary: answer.salary,
+                department_id: answer.department_id,
+              },
+              function (err) {
+                if (err) throw err;
+                console.log("Successfully added role!");
+                // view the roles
+                connection.query("SELECT * FROM roles", function (err, res) {
+                  if (err) throw err;
+                  res.length > 0 && console.table(res);
+                  inquireQ();
+                });
+              }
+            );
+          });
+          break;
+
+        case "View Roles":
+          connection.query("SELECT * FROM roles", function (err, res) {
+            if (err) throw err;
+            res.length > 0 && console.table(res);
+            inquireQ();
+          });
+          break;
+
+        case "View Employees":
+          connection.query("SELECT * FROM employees", function (err, res) {
+            if (err) throw err;
+            res.length > 0 && console.table(res);
+            inquireQ();
+          });
+          break;
         case "Add Employee":
-          inquirer.prompt(questions).then((response) => {});
+          ask.prompt(addemployee).then((answer) => {
+            connection.query(
+              "INSERT INTO SET ?",
+              {
+                first_name: answer.first_name,
+                last_name: answer.last_name,
+                role_id: answer.role_id,
+                manager_id: answer.manager_id,
+              },
+              function (err) {
+                if (err) throw err;
+                console.log("Successfully added an employee!");
+                // view the employees
+                connection.query("SELECT * FROM employees", function (
+                  err,
+                  res
+                ) {
+                  if (err) throw err;
+                  res.length > 0 && console.table(res);
+                  inquireQ();
+                });
+              }
+            );
+          });
           break;
         //   case "Remove Employee":
         //   inquirer.prompt(questions).then((response) => {}); break;
         //   case "Update Employee Role":
         //   inquirer.prompt(questions).then((response) => {}); break;
-        case "See Roles":
-          inquirer.prompt(questions).then((response) => {});
-          break;
-        //   case "Add Role":
-        //     inquirer.prompt(questions).then((response) => {}); break;
+
         //   case "Remove Role":
         //   inquirer.prompt(questions).then((response) => {}); break;
-        case "See Department":
-          // connection.query("SELECT * FROM products")
 
-          break;
-        //   case "Add Department":
-        //   inquirer.prompt(questions).then((response) => {}); break;
         //   case "Remove Department":
         //   inquirer.prompt(questions).then((response) => {}); break;
         //   case "See Manager Employees":
@@ -151,7 +207,7 @@ const inquireQ = () => {
         //   case "View Department Budget":
         //   inquirer.prompt(questions).then((response) => {}); break;
 
-        case "Done":
+        case "Finish":
           connection.end();
           break;
         default:
