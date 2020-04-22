@@ -1,0 +1,14 @@
+CFonts.say("Welcome|Terrence|Please Give Me An A+", {
+  font: "chrome",
+  align: "center",
+  colors: ["candy", "candy", "candy"],
+  background: "transparent",
+  letterSpacing: 1,
+  lineHeight: 1,
+  space: true,
+  maxLength: "0",
+  gradient: true,
+  independentGradient: false,
+  transitionGradient: false,
+  env: "node",
+});
