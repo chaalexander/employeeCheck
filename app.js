@@ -39,16 +39,29 @@ connection.connect(function (err) {
 const questions = [
   {
     type: "input",
-    message: "What is your full name?",
-    name: "fullName",
+    message: "What is your first name?",
+    name: "firstName",
     validate: (value) => {
-      var regName = /^[a-zA-Z]+ [a-zA-Z]+$/;
+      var regName = /^[a-zA-Z]+$/;
       if (!regName.test(value)) {
-        return "Please enter your full name (first & last name)";
+        return "Please enter your full name (first name)";
       }
       return true;
     },
   },
+  {
+    type: "input",
+    message: "What is your last name?",
+    name: "lastName",
+    validate: (value) => {
+      var regName = /^[a-zA-Z]+$/;
+      if (!regName.test(value)) {
+        return "Please enter your full name (last name)";
+      }
+      return true;
+    },
+  },
+
   {
     type: "input",
     message: "What is your employee id?",
@@ -127,6 +140,7 @@ const inquireQ = () => {
         //   inquirer.prompt(questions).then((response) => {}); break;
         case "See Department":
           // connection.query("SELECT * FROM products")
+
           break;
         //   case "Add Department":
         //   inquirer.prompt(questions).then((response) => {}); break;

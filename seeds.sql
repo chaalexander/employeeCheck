@@ -1,41 +1,50 @@
--- creating tables
-
-
--- regular tables
 DROP DATABASE IF EXISTS employee_db;
 
 CREATE DATABASE employee_db;
 
 USE employee_db;
 
-CREATE TABLE employee(
-id INTEGER(10) AUTO_INCREMENT NOT NULL,
-  firstName VARCHAR(45) NULL,
-  lastName VARCHAR(45) NULL,
-  -- join in
-  role_id INTEGER(10) NOT NULL,
-  manager_id INTEGER(10) NOT NULL,
-  PRIMARY KEY(id)
+CREATE TABLE department(
+id INTEGER(10)PRIMARY KEY NOT NULL AUTO_INCREMENT ,
+name VARCHAR(100) NOT NULL
+); 
+
+CREATE TABLE roles(
+id INTEGER(10)PRIMARY KEY NOT NULL AUTO_INCREMENT,
+title VARCHAR(100)NOT NULL ,
+salary DECIMAL NOT NULL,
+department_id INTEGER(10) NOT NULL
 );
 
 
-  CREATE TABLE department(
-  id INTEGER(10)AUTO_INCREMENT NOT NULL,
-  dp_name VARCHAR(100),
-  PRIMARY KEY(id)
-  );
--- inserting information to department
-INSERT INTO department(dp_name)
-    VALUES("clothes", "food", "eletronics");
+CREATE TABLE employee(
+id INTEGER(10) PRIMARY KEY NOT NULL AUTO_INCREMENT,
+first_name VARCHAR(45) NOT NULL,
+last_name VARCHAR(45) NOT NULL,
+-- join in
+role_id INTEGER(10) NOT NULL,
+manager_id INTEGER(10),
+);
+
+
+
+INSERT INTO departments (name)
+VALUES ("Finance");
+
+INSERT INTO roles (title, salary, department_id)
+VALUES ("Manager", 30000.00, 1);
+
+INSERT INTO employees (first_name, last_name, role_id, manager_id)
+VALUES ("Janet", "Smith", 1, null);
+
+INSERT INTO employees (first_name, last_name, role_id, manager_id)
+VALUES ("Bob", "Barker", 1, 1);
+
+
+  
     
 
-    CREATE TABLE roles(
-    id INTEGER(11)AUTO_INCREMENT NOT NULL,
-     title VARCHAR(100),
-     salary INTEGER(11) NOT NULL,
-     dp_id INTEGER(10) NOT NULL
-     PRIMARY KEY(id)
-    );
+   
 -- joining tables
 -- INSERT INTO authors (firstName, lastName) values ('Jane', 'Austen');
 -- INSERT INTO authors (firstName, lastName) values ('Mark', 'Twain');
