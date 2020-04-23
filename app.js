@@ -1,7 +1,3 @@
-// importing internal node packages
-const path = require("path");
-const fs = require("fs");
-
 // importing external npm packages
 const ask = require("inquirer");
 const validator = require("validator");
@@ -132,7 +128,7 @@ const inquireQ = () => {
           "View Employees",
           "Updated Employee Role",
           "Update Employee Managers",
-          "Delete Employee",
+          "Remove Employee",
           "Finish",
         ],
         name: "userFunction",
@@ -174,14 +170,18 @@ const inquireQ = () => {
           });
           break;
 
+        case "Remove Department":
+          inquirer.prompt(questions).then((response) => {});
+          break;
+
         case "Add Role":
           ask.prompt(addRole).then((answer) => {
             connection.query(
-              "INSERT INTO SET ?",
+              "INSERT INTO roles SET ?",
               {
                 title: answer.title,
                 salary: answer.salary,
-                department_id: answer.department_id,
+                department_id: parseInt(answer.department_id),
               },
               function (err) {
                 if (err) throw err;
@@ -208,6 +208,10 @@ const inquireQ = () => {
           });
           break;
 
+        case "Remove Role":
+          inquirer.prompt(questions).then((response) => {});
+          break;
+
         case "View Employees":
           connection.query("SELECT * FROM employees", function (err, res) {
             if (err) throw err;
@@ -218,12 +222,12 @@ const inquireQ = () => {
         case "Add Employee":
           ask.prompt(addEmployee).then((answer) => {
             connection.query(
-              "INSERT INTO SET ?",
+              "INSERT INTO  employees SET ?",
               {
                 first_name: answer.first_name,
                 last_name: answer.last_name,
-                role_id: answer.role_id,
-                manager_id: answer.manager_id,
+                role_id: parseInt(answer.role_id),
+                manager_id: parseInt(answer.manager_id),
               },
               function (err) {
                 if (err) throw err;
@@ -243,17 +247,39 @@ const inquireQ = () => {
           break;
 
         case "Remove Employee":
-          inquirer.prompt(questions).then((response) => {});
+          connection.query("SELECT * FROM employees", function (err, res) {
+            if (err) throw err;
+            res.length > 0 && console.table(res);
+            ask
+              .prompt([
+                {
+                  type: "input",
+                  message: "Enter the ID of the employee you want to remove.",
+                  name: "removeEmployee",
+                },
+              ])
+              .then((answer) => {
+                connection.query(
+                  "DELETE FROM employees WHERE id=? ",
+                  [answer.removeEmployee],
+                  function (err, res) {
+                    if (err) throw err;
+                    connection.query("SELECT * FROM employees", function (
+                      err,
+                      res
+                    ) {
+                      if (err) throw err;
+                      res.length > 0 && console.table(res);
+                      inquireQ();
+                    });
+                  }
+                );
+              });
+          });
+
           break;
+
         case "Update Employee Role":
-          inquirer.prompt(questions).then((response) => {});
-          break;
-
-        case "Remove Role":
-          inquirer.prompt(questions).then((response) => {});
-          break;
-
-        case "Remove Department":
           inquirer.prompt(questions).then((response) => {});
           break;
 
