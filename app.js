@@ -170,8 +170,36 @@ const inquireQ = () => {
           });
           break;
 
-        case "Remove Department":
-          inquirer.prompt(questions).then((response) => {});
+        case "Delete Departments":
+          connection.query("SELECT * FROM departments ", function (err, res) {
+            if (err) throw err;
+            res.length > 0 && console.table(res);
+            ask
+              .prompt([
+                {
+                  type: "input",
+                  message: "Enter the department id you want to delete.",
+                  name: "deleteDepartments",
+                },
+              ])
+              .then((answer) => {
+                connection.query(
+                  "DELETE FROM departments WHERE id=? ",
+                  [answer.deleteDepartments],
+                  function (err, res) {
+                    if (err) throw err;
+                    connection.query("SELECT * FROM departments", function (
+                      err,
+                      res
+                    ) {
+                      if (err) throw err;
+                      res.length > 0 && console.table(res);
+                      inquireQ();
+                    });
+                  }
+                );
+              });
+          });
           break;
 
         case "Add Role":
@@ -208,8 +236,36 @@ const inquireQ = () => {
           });
           break;
 
-        case "Remove Role":
-          inquirer.prompt(questions).then((response) => {});
+        case "Delete Roles":
+          connection.query("SELECT * FROM roles", function (err, res) {
+            if (err) throw err;
+            res.length > 0 && console.table(res);
+            ask
+              .prompt([
+                {
+                  type: "input",
+                  message: "Enter the role id you want to delete.",
+                  name: "deleteRoles",
+                },
+              ])
+              .then((answer) => {
+                connection.query(
+                  "DELETE FROM roles WHERE id=? ",
+                  [answer.deleteRoles],
+                  function (err, res) {
+                    if (err) throw err;
+                    connection.query("SELECT * FROM roles", function (
+                      err,
+                      res
+                    ) {
+                      if (err) throw err;
+                      res.length > 0 && console.table(res);
+                      inquireQ();
+                    });
+                  }
+                );
+              });
+          });
           break;
 
         case "View Employees":
