@@ -48,10 +48,10 @@ const addRole = [
     message: "Please enter the salary for this role:",
     name: "salary",
     validate: (value) => {
-      if (validator.isInt(value)) {
+      if (validator.isDecimal(value)) {
         return true;
       }
-      return "Please enter a valid salary ex:(3000.00)";
+      return "Please enter a valid salary ex:(300000)";
     },
   },
   {
@@ -63,6 +63,52 @@ const addRole = [
         return true;
       }
       return "Please enter a valid department ID(number)";
+    },
+  },
+];
+const addEmployee = [
+  {
+    type: "input",
+    message: "What is your first name?",
+    name: "first_name",
+    validate: (value) => {
+      if (validator.isAlpha(value)) {
+        return true;
+      }
+      return "Please enter a valid first name (a-z)";
+    },
+  },
+  {
+    type: "input",
+    message: "What is your last name?",
+    name: "last_name",
+    validate: (value) => {
+      if (validator.isAlpha(value)) {
+        return true;
+      }
+      return "Please enter a valid last name (a-z)";
+    },
+  },
+  {
+    type: "input",
+    message: "Please enter your role ID:",
+    name: "role_id",
+    validate: (value) => {
+      if (validator.isInt(value)) {
+        return true;
+      }
+      return "Please enter a valid role ID (numbers)";
+    },
+  },
+  {
+    type: "input",
+    message: "Please enter your manager ID:",
+    name: "manager_id",
+    validate: (value) => {
+      if (validator.isInt(value)) {
+        return true;
+      }
+      return "Please enter a valid manager ID (numbers)";
     },
   },
 ];
@@ -79,10 +125,10 @@ const inquireQ = () => {
           "Add Department",
           "View Departments",
           "Delete Departments",
-          "Add Roles",
+          "Add Role",
           "View Roles",
           "Delete Roles",
-          "Add Employees",
+          "Add Employee",
           "View Employees",
           "Updated Employee Role",
           "Update Employee Managers",
@@ -141,7 +187,10 @@ const inquireQ = () => {
                 if (err) throw err;
                 console.log("Successfully added role!");
                 // view the roles
-                connection.query("SELECT * FROM roles", function (err, res) {
+                connection.query("SELECT * FROM departments", function (
+                  err,
+                  res
+                ) {
                   if (err) throw err;
                   res.length > 0 && console.table(res);
                   inquireQ();
@@ -167,7 +216,7 @@ const inquireQ = () => {
           });
           break;
         case "Add Employee":
-          ask.prompt(addemployee).then((answer) => {
+          ask.prompt(addEmployee).then((answer) => {
             connection.query(
               "INSERT INTO SET ?",
               {
@@ -192,20 +241,25 @@ const inquireQ = () => {
             );
           });
           break;
-        //   case "Remove Employee":
-        //   inquirer.prompt(questions).then((response) => {}); break;
-        //   case "Update Employee Role":
-        //   inquirer.prompt(questions).then((response) => {}); break;
 
-        //   case "Remove Role":
-        //   inquirer.prompt(questions).then((response) => {}); break;
+        case "Remove Employee":
+          inquirer.prompt(questions).then((response) => {});
+          break;
+        case "Update Employee Role":
+          inquirer.prompt(questions).then((response) => {});
+          break;
 
-        //   case "Remove Department":
-        //   inquirer.prompt(questions).then((response) => {}); break;
-        //   case "See Manager Employees":
-        //   inquirer.prompt(questions).then((response) => {}); break;
-        //   case "View Department Budget":
-        //   inquirer.prompt(questions).then((response) => {}); break;
+        case "Remove Role":
+          inquirer.prompt(questions).then((response) => {});
+          break;
+
+        case "Remove Department":
+          inquirer.prompt(questions).then((response) => {});
+          break;
+
+        case "See Manager Employees":
+          inquirer.prompt(questions).then((response) => {});
+          break;
 
         case "Finish":
           connection.end();
@@ -216,97 +270,3 @@ const inquireQ = () => {
       }
     });
 };
-
-// REFERENCE!!!
-
-// function createProduct() {
-//   console.log("Inserting a new product...\n");
-//   var query = connection.query(
-//     "INSERT INTO products SET ?",
-//     {
-//       flavor: "Rocky Road",
-//       price: 3.0,
-//       quantity: 50
-//     },
-//     function(err, res) {
-//       if (err) throw err;
-//       console.log(res.affectedRows + " product inserted!\n");
-//       // Call updateProduct AFTER the INSERT completes
-//       updateProduct();
-//     }
-//   );
-
-//   // logs the actual query being run
-//   console.log(query.sql);
-// }
-
-// function updateProduct() {
-//   console.log("Updating all Rocky Road quantities...\n");
-//   var query = connection.query(
-//     "UPDATE products SET ? WHERE ?",
-//     [
-//       {
-//         quantity: 100
-//       },
-//       {
-//         flavor: "Rocky Road"
-//       }
-//     ],
-//     function(err, res) {
-//       if (err) throw err;
-//       console.log(res.affectedRows + " products updated!\n");
-//       // Call deleteProduct AFTER the UPDATE completes
-//       deleteProduct();
-//     }
-//   );
-
-//   // logs the actual query being run
-//   console.log(query.sql);
-// }
-
-// function deleteProduct() {
-//   console.log("Deleting all strawberry icecream...\n");
-//   connection.query(
-//     "DELETE FROM products WHERE ?",
-//     {
-//       flavor: "strawberry"
-//     },
-//     function(err, res) {
-//       if (err) throw err;
-//       console.log(res.affectedRows + " products deleted!\n");
-//       // Call readProducts AFTER the DELETE completes
-//       readProducts();
-//     }
-//   );
-// }
-
-// function readProducts() {
-//   console.log("Selecting all products...\n");
-//   connection.query("SELECT * FROM products", function(err, res) {
-//     if (err) throw err;
-//     // Log all results of the SELECT statement
-//     console.log(res);
-//     connection.end();
-//   });
-// }
-
-// IMPORTANTE
-// inquirer.prompt(questions).then((response) => {
-//     // if (response.role === "Manager") {
-//     //   inquirer
-//     //     .prompt({
-//     //       type: "input",
-//     //       message: "What is your office number?",
-//     //       name: "officeNum",
-//     //       validate: (value) => {
-//     //         if (validator.isInt(value)) {
-//     //           return true;
-//     //         }
-//     //         return "Please enter a valid office number";
-//     //       },
-//     //     })
-//     //     .then((managerOffice) => {
-//     //       inquireQ();
-//     //     });
-//     // }
-//   });
