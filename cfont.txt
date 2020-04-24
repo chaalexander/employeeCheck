@@ -1,4 +1,4 @@
-CFonts.say("Welcome|Terrence|Please Give Me An A+", {
+CFonts.say("Welcome|Please Give Me An A+", {
   font: "chrome",
   align: "center",
   colors: ["candy", "candy", "candy"],

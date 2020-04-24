@@ -1,34 +1,4 @@
-DROP DATABASE IF EXISTS employee_db;
-
-CREATE DATABASE employee_db;
-
 USE employee_db;
-
-CREATE TABLE departments(
-id INTEGER(10)AUTO_INCREMENT  NOT NULL  ,
-name VARCHAR(100) NOT NULL,
-PRIMARY KEY(id)
-); 
-
-CREATE TABLE roles(
-id INTEGER(10)AUTO_INCREMENT  NOT NULL ,
-title VARCHAR(100)NOT NULL ,
-salary DECIMAL NOT NULL,
-department_id INTEGER(10) NOT NULL,
-PRIMARY KEY(id)
-);
-
-
-CREATE TABLE employees(
-id INTEGER(10)AUTO_INCREMENT  NOT NULL ,
-first_name VARCHAR(45) NOT NULL,
-last_name VARCHAR(45) NOT NULL,
--- join in
-role_id INTEGER(10) NOT NULL,
-manager_id INTEGER(10),
-PRIMARY KEY(id)
-);
-
 
 
 INSERT INTO departments (name)
