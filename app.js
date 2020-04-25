@@ -26,42 +26,42 @@ const addDept = [
   },
 ];
 
-const addRole = [
-  {
-    type: "input",
-    message: "Please enter the role you wish to add:",
-    name: "title",
-    validate: (value) => {
-      if (validator.isAlpha(value)) {
-        return true;
-      }
-      return "Please enter a valid role (a-z)";
-    },
-  },
+// const addRole = [
+//   {
+//     type: "input",
+//     message: "Please enter the role you wish to add:",
+//     name: "title",
+//     validate: (value) => {
+//       if (validator.isAlpha(value)) {
+//         return true;
+//       }
+//       return "Please enter a valid role (a-z)";
+//     },
+//   },
 
-  {
-    type: "input",
-    message: "Please enter the salary for this role:",
-    name: "salary",
-    validate: (value) => {
-      if (validator.isDecimal(value)) {
-        return true;
-      }
-      return "Please enter a valid salary ex:(300000)";
-    },
-  },
-  {
-    type: "input",
-    message: "Please enter the department ID for this role:",
-    name: "department_id",
-    validate: (value) => {
-      if (validator.isInt(value)) {
-        return true;
-      }
-      return "Please enter a valid department ID(number)";
-    },
-  },
-];
+//   {
+//     type: "input",
+//     message: "Please enter the salary for this role:",
+//     name: "salary",
+//     validate: (value) => {
+//       if (validator.isDecimal(value)) {
+//         return true;
+//       }
+//       return "Please enter a valid salary ex:(300000)";
+//     },
+//   },
+//   {
+//     type: "input",
+//     message: "Please enter the department ID for this role:",
+//     name: "department_id",
+//     validate: (value) => {
+//       if (validator.isInt(value)) {
+//         return true;
+//       }
+//       return "Please enter a valid department ID(number)";
+//     },
+//   },
+// ];
 const addEmployee = [
   {
     type: "input",
@@ -139,6 +139,7 @@ const inquireQ = () => {
       const userFunction = res.userFunction;
       // switch case for all options
       switch (userFunction) {
+
         case "Add Department":
           ask.prompt(addDept).then((answer) => {
             connection.query(
@@ -204,28 +205,56 @@ const inquireQ = () => {
           break;
 
         case "Add Role":
-          ask.prompt(addRole).then((answer) => {
-            connection.query(
-              "INSERT INTO roles SET ?",
-              {
-                title: answer.title,
-                salary: answer.salary,
-                department_id: parseInt(answer.department_id),
-              },
-              function (err) {
-                if (err) throw err;
-                console.log("Successfully added role!");
-                // view the roles
-                connection.query("SELECT * FROM departments", function (
-                  err,
-                  res
-                ) {
-                  if (err) throw err;
-                  res.length > 0 && console.table(res);
-                  inquireQ();
-                });
-              }
-            );
+          //view the roles
+          connection.query("SELECT * FROM departments", function (
+            err,
+            departments
+          ) {
+            if (err) throw err;
+            // res.length > 0 && console.table(departments);
+            ask
+              .prompt([
+                {
+                  type: "input",
+                  message: "What is the role title you want to add?",
+                  name: "title",
+                },
+                {
+                  type: "input",
+                  massage: "Please enter the salary for this role:",
+                  name: "salary",
+                  validate: (value) => {
+                    if (validator.isInt(value)) {
+                      return true;
+                    }
+                    return "Please enter a valid salary ex:(3000.00)";
+                  },
+                },
+                {
+                  type: "list",
+                  massage: "Please select the department for this role:",
+                  choices: departments.map((department) => ({
+                    value: department.id,
+                    name: department.name,
+                  })),
+                  name: "department_id",
+                },
+              ])
+              .then((answer) => {
+                connection.query(
+                  "INSERT INTO roles SET ?",
+                  {
+                    title: answer.title,
+                    salary: answer.salary,
+                    department_id: answer.department_id,
+                  },
+                  function (err) {
+                    if (err) throw err;
+                    console.log("Successfully added role!");
+                    inquireQ();
+                  }
+                );
+              });
           });
           break;
 
@@ -238,21 +267,25 @@ const inquireQ = () => {
           break;
 
         case "Delete Roles":
-          connection.query("SELECT * FROM roles", function (err, res) {
+          connection.query("SELECT * FROM roles ", function (err, roles) {
             if (err) throw err;
-            res.length > 0 && console.table(res);
+            // res.length > 0 && console.table(res);
             ask
               .prompt([
                 {
-                  type: "input",
-                  message: "Enter the role id you want to delete.",
-                  name: "deleteRoles",
+                  type: "list",
+                  message: "Please select the role you wish to delete:",
+                  choices: roles.map((role) => ({
+                    value: role.id,
+                    name: role.title,
+                  })),
+                  name: "deleteRole",
                 },
               ])
               .then((answer) => {
                 connection.query(
                   "DELETE FROM roles WHERE id=? ",
-                  [answer.deleteRoles],
+                  [answer.deleteRole],
                   function (err, res) {
                     if (err) throw err;
                     connection.query("SELECT * FROM roles", function (
@@ -277,29 +310,78 @@ const inquireQ = () => {
           });
           break;
         case "Add Employee":
-          ask.prompt(addEmployee).then((answer) => {
-            connection.query(
-              "INSERT INTO  employees SET ?",
-              {
-                first_name: answer.first_name,
-                last_name: answer.last_name,
-                role_id: parseInt(answer.role_id),
-                manager_id: parseInt(answer.manager_id),
-              },
-              function (err) {
-                if (err) throw err;
-                console.log("Successfully added an employee!");
-                // view the employees
-                connection.query("SELECT * FROM employees", function (
-                  err,
-                  res
-                ) {
-                  if (err) throw err;
-                  res.length > 0 && console.table(res);
-                  inquireQ();
+          //view employees before you add one.
+          connection.query("SELECT * FROM roles", function (err, roles) {
+            if (err) throw err;
+            res.length > 0 && console.table(res);
+            connection.query("SELECT * FROM employees", function (
+              err,
+              employees
+            ) {
+              if (err) throw err;
+              res.length > 0 && console.table(res);
+              //ask the questions to add after displaying current ones
+              ask
+                .prompt([
+                  {
+                    type: "input",
+                    message: "Please enter employee's first name:",
+                    name: "first_name",
+                    validate: (value) => {
+                      if (validator.isAlpha(value)) {
+                        return true;
+                      }
+                      return "Please enter valid first name (a-z)";
+                    },
+                  },
+                  {
+                    type: "input",
+                    message: "Please enter employee's last name:",
+                    name: "last_name",
+                    validate: (value) => {
+                      if (validator.isAlpha(value)) {
+                        return true;
+                      }
+                      return "Please enter valid last name (a-z)";
+                    },
+                  },
+                  {
+                    type: "list",
+                    message: "Please select employee's role:",
+                    choices: roles.map((role) => ({
+                      value: role.id,
+                      name: role.title,
+                    })),
+                    name: "role_id",
+                  },
+                  {
+                    type: "list",
+                    message: "Please select the manager for this employee:",
+                    choices: employees.map((employee) => ({
+                      value: employee.id,
+                      name: employee.last_name,
+                    })),
+                    name: "manager_id",
+                  },
+                ])
+                .then((answer) => {
+                  connection.query(
+                    "INSERT INTO employees SET ?",
+                    {
+                      first_name: answer.first_name,
+                      last_name: answer.last_name,
+                      role_id: answer.role_id,
+                      manager_id: answer.manager_id,
+                    },
+                    function (err) {
+                      if (err) throw err;
+                      console.log("Successfully added employee!");
+                      //view the roles
+                      inquireQ();
+                    }
+                  );
                 });
-              }
-            );
+            });
           });
           break;
 

@@ -13,20 +13,20 @@ Design the following database schema containing three tables:
   * **id** - INT PRIMARY KEY
   * **name** - VARCHAR(30) to hold department name -->
 
-<!-- * **role**:
+* **role**:
 
-  * **id** - INT PRIMARY KEY
+  <!-- * **id** - INT PRIMARY KEY
   * **title** -  VARCHAR(30) to hold role title
-  * **salary** -  DECIMAL to hold role salary
-  * **department_id** -  INT to hold reference to department role belongs to -->
+  * **salary** -  DECIMAL to hold role salary -->
+  * **department_id** -  INT to hold reference to department role belongs to (the department id is a join from department name)
 
-<!-- * **employee**:
+ * **employee**:
 
-  * **id** - INT PRIMARY KEY
-  * **first_name** - VARCHAR(30) to hold employee first name
-  * **last_name** - VARCHAR(30) to hold employee last name
-  * **role_id** - INT to hold reference to role employee has
-  * **manager_id** - INT to hold reference to another employee that manager of the current employee. This field may be null if the employee has no manager -->
+  <!-- * **id** - INT PRIMARY KEY
+  * **first_name** - VARCHAR(30) to hold employee first name -->
+  <!-- * **last_name** - VARCHAR(30) to hold employee last name -->
+  * **role_id** - INT to hold reference to role employee has  (the role id is a join from the role title)
+  * **manager_id** - INT to hold reference to another employee that manager of the current employee. This field may be null if the employee has no manager 
   
 Build a command-line application that at a minimum allows the user to:
 
@@ -34,13 +34,13 @@ Build a command-line application that at a minimum allows the user to:
 
   * View departments, roles, employees DONE -->
 
-  * Update employee roles !!!
+  <!-- * Update employee roles !!! -->
 
-Bonus points if you're able to: (do it he last)
+Bonus points if you're able to: 
 
-  * Update employee managers !!!!
+  <!-- * Update employee managers !!!! -->
 
-  * View employees by manager !!!
+  <!-- * View employees by manager !!! -->
 
   <!-- * Delete departments, roles, and employees DONE -->
 
