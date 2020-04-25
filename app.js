@@ -4,110 +4,13 @@ const validator = require("validator");
 const CFonts = require("cfonts");
 
 // importing local files
-var connection = require("./connection");
+const connection = require("./connection");
 
-connection.connect(function (err) {
+connection.connect((err) => {
   if (err) throw err;
   console.log("connected as id " + connection.threadId + "\n");
   inquireQ();
 });
-
-const addDept = [
-  {
-    type: "input",
-    message: "Please enter the department you wish to add:",
-    name: "department",
-    validate: (value) => {
-      if (validator.isAlpha(value)) {
-        return true;
-      }
-      return "Please enter a valid department (a-z)";
-    },
-  },
-];
-
-// const addRole = [
-//   {
-//     type: "input",
-//     message: "Please enter the role you wish to add:",
-//     name: "title",
-//     validate: (value) => {
-//       if (validator.isAlpha(value)) {
-//         return true;
-//       }
-//       return "Please enter a valid role (a-z)";
-//     },
-//   },
-
-//   {
-//     type: "input",
-//     message: "Please enter the salary for this role:",
-//     name: "salary",
-//     validate: (value) => {
-//       if (validator.isDecimal(value)) {
-//         return true;
-//       }
-//       return "Please enter a valid salary ex:(300000)";
-//     },
-//   },
-//   {
-//     type: "input",
-//     message: "Please enter the department ID for this role:",
-//     name: "department_id",
-//     validate: (value) => {
-//       if (validator.isInt(value)) {
-//         return true;
-//       }
-//       return "Please enter a valid department ID(number)";
-//     },
-//   },
-// ];
-const addEmployee = [
-  {
-    type: "input",
-    message: "What is your first name?",
-    name: "first_name",
-    validate: (value) => {
-      if (validator.isAlpha(value)) {
-        return true;
-      }
-      return "Please enter a valid first name (a-z)";
-    },
-  },
-  {
-    type: "input",
-    message: "What is your last name?",
-    name: "last_name",
-    validate: (value) => {
-      if (validator.isAlpha(value)) {
-        return true;
-      }
-      return "Please enter a valid last name (a-z)";
-    },
-  },
-  {
-    type: "input",
-    message: "Please enter your role ID:",
-    name: "role_id",
-    validate: (value) => {
-      if (validator.isInt(value)) {
-        return true;
-      }
-      return "Please enter a valid role ID (numbers)";
-    },
-  },
-  {
-    type: "input",
-    message: "Please enter your manager ID:",
-    name: "manager_id",
-    validate: (value) => {
-      if (validator.isInt(value)) {
-        return true;
-      }
-      return "Please enter a valid manager ID (numbers)";
-    },
-  },
-];
 
 // main function
 const inquireQ = () => {
@@ -139,33 +42,41 @@ const inquireQ = () => {
       const userFunction = res.userFunction;
       // switch case for all options
       switch (userFunction) {
-
         case "Add Department":
-          ask.prompt(addDept).then((answer) => {
-            connection.query(
-              "INSERT INTO departments SET ?",
-              {
-                name: answer.department,
+          ask
+            .prompt({
+              type: "input",
+              message: "Please enter the department you wish to add:",
+              name: "department",
+              validate: (value) => {
+                if (validator.isAlpha(value)) {
+                  return true;
+                }
+                return "Please enter a valid department (a-z)";
               },
-              function (err) {
-                if (err) throw err;
-                console.log("Successfully added department!");
-                // show the departments
-                connection.query("SELECT * FROM departments", function (
-                  err,
-                  res
-                ) {
+            })
+            .then((answer) => {
+              connection.query(
+                "INSERT INTO departments SET ?",
+                {
+                  name: answer.department,
+                },
+                function (err) {
                   if (err) throw err;
-                  res.length > 0 && console.table(res);
-                  inquireQ();
-                });
-              }
-            );
-          });
+                  console.log("Successfully added department!");
+                  // show the departments
+                  connection.query("SELECT * FROM departments", (err, res) => {
+                    if (err) throw err;
+                    res.length > 0 && console.table(res);
+                    inquireQ();
+                  });
+                }
+              );
+            });
           break;
 
         case "View Departments":
-          connection.query("SELECT * FROM departments", function (err, res) {
+          connection.query("SELECT * FROM departments", (err, res) => {
             if (err) throw err;
             res.length > 0 && console.table(res);
             inquireQ();
@@ -173,7 +84,7 @@ const inquireQ = () => {
           break;
 
         case "Delete Departments":
-          connection.query("SELECT * FROM departments ", function (err, res) {
+          connection.query("SELECT * FROM departments ", (err, res) => {
             if (err) throw err;
             res.length > 0 && console.table(res);
             ask
@@ -190,14 +101,14 @@ const inquireQ = () => {
                   [answer.deleteDepartments],
                   function (err, res) {
                     if (err) throw err;
-                    connection.query("SELECT * FROM departments", function (
-                      err,
-                      res
-                    ) {
-                      if (err) throw err;
-                      res.length > 0 && console.table(res);
-                      inquireQ();
-                    });
+                    connection.query(
+                      "SELECT * FROM departments",
+                      (err, res) => {
+                        if (err) throw err;
+                        res.length > 0 && console.table(res);
+                        inquireQ();
+                      }
+                    );
                   }
                 );
               });
@@ -206,10 +117,7 @@ const inquireQ = () => {
 
         case "Add Role":
           //view the roles
-          connection.query("SELECT * FROM departments", function (
-            err,
-            departments
-          ) {
+          connection.query("SELECT * FROM departments", (err, departments) => {
             if (err) throw err;
             // res.length > 0 && console.table(departments);
             ask
@@ -248,7 +156,7 @@ const inquireQ = () => {
                     salary: answer.salary,
                     department_id: answer.department_id,
                   },
-                  function (err) {
+                  (err) => {
                     if (err) throw err;
                     console.log("Successfully added role!");
                     inquireQ();
@@ -259,7 +167,7 @@ const inquireQ = () => {
           break;
 
         case "View Roles":
-          connection.query("SELECT * FROM roles", function (err, res) {
+          connection.query("SELECT * FROM roles", (err, res) => {
             if (err) throw err;
             res.length > 0 && console.table(res);
             inquireQ();
@@ -267,7 +175,7 @@ const inquireQ = () => {
           break;
 
         case "Delete Roles":
-          connection.query("SELECT * FROM roles ", function (err, roles) {
+          connection.query("SELECT * FROM roles ", (err, roles) => {
             if (err) throw err;
             // res.length > 0 && console.table(res);
             ask
@@ -288,10 +196,7 @@ const inquireQ = () => {
                   [answer.deleteRole],
                   function (err, res) {
                     if (err) throw err;
-                    connection.query("SELECT * FROM roles", function (
-                      err,
-                      res
-                    ) {
+                    connection.query("SELECT * FROM roles", (err, res) => {
                       if (err) throw err;
                       res.length > 0 && console.table(res);
                       inquireQ();
@@ -303,7 +208,7 @@ const inquireQ = () => {
           break;
 
         case "View Employees":
-          connection.query("SELECT * FROM employees", function (err, res) {
+          connection.query("SELECT * FROM employees", (err, res) => {
             if (err) throw err;
             res.length > 0 && console.table(res);
             inquireQ();
@@ -311,13 +216,10 @@ const inquireQ = () => {
           break;
         case "Add Employee":
           //view employees before you add one.
-          connection.query("SELECT * FROM roles", function (err, roles) {
+          connection.query("SELECT * FROM roles", (err, roles) => {
             if (err) throw err;
             res.length > 0 && console.table(res);
-            connection.query("SELECT * FROM employees", function (
-              err,
-              employees
-            ) {
+            connection.query("SELECT * FROM employees", (err, employees) => {
               if (err) throw err;
               res.length > 0 && console.table(res);
               //ask the questions to add after displaying current ones
@@ -373,7 +275,7 @@ const inquireQ = () => {
                       role_id: answer.role_id,
                       manager_id: answer.manager_id,
                     },
-                    function (err) {
+                    (err) => {
                       if (err) throw err;
                       console.log("Successfully added employee!");
                       //view the roles
@@ -386,7 +288,7 @@ const inquireQ = () => {
           break;
 
         case "Remove Employee":
-          connection.query("SELECT * FROM employees", function (err, res) {
+          connection.query("SELECT * FROM employees", (err, res) => {
             if (err) throw err;
             res.length > 0 && console.table(res);
             ask
@@ -403,10 +305,7 @@ const inquireQ = () => {
                   [answer.removeEmployee],
                   function (err, res) {
                     if (err) throw err;
-                    connection.query("SELECT * FROM employees", function (
-                      err,
-                      res
-                    ) {
+                    connection.query("SELECT * FROM employees", (err, res) => {
                       if (err) throw err;
                       res.length > 0 && console.table(res);
                       inquireQ();
@@ -419,7 +318,7 @@ const inquireQ = () => {
           break;
 
         case "Updated Employee Roles":
-          connection.query("SELECT * FROM employees", function (err, res) {
+          connection.query("SELECT * FROM employees", (err, res) => {
             if (err) throw err;
             res.length > 0 && console.table(res);
             ask
@@ -458,7 +357,7 @@ const inquireQ = () => {
                       id: answer.updateID,
                     },
                   ],
-                  function (err, res) {
+                  (err, res) => {
                     if (err) throw err;
                     console.table(res);
                     console.log("Employee has been updated!");
@@ -491,7 +390,7 @@ const inquireQ = () => {
                     manager_id: answer.viewMngrsEmps,
                   },
                 ],
-                function (err, res) {
+                (err, res) => {
                   if (err) throw err;
                   console.table(res);
                   console.log("Employee's manager has been updated!");
@@ -502,7 +401,7 @@ const inquireQ = () => {
           break;
 
         case "Update Employee Managers":
-          connection.query("SELECT * FROM employees", function (err, res) {
+          connection.query("SELECT * FROM employees", (err, res) => {
             if (err) throw err;
             res.length > 0 && console.table(res);
             ask
@@ -542,7 +441,7 @@ const inquireQ = () => {
                       id: answer.updateMngr,
                     },
                   ],
-                  function (err, res) {
+                  (err, res) => {
                     if (err) throw err;
                     console.log("Employee's manager has been updated!");
                     inquireQ();
