@@ -126,7 +126,8 @@ const inquireQ = () => {
           "Delete Roles",
           "Add Employee",
           "View Employees",
-          "Updated Employee Role",
+          "Updated Employee Roles",
+          "View Employees by Manager",
           "Update Employee Managers",
           "Remove Employee",
           "Finish",
@@ -335,12 +336,138 @@ const inquireQ = () => {
 
           break;
 
-        case "Update Employee Role":
-          inquirer.prompt(questions).then((response) => {});
+        case "Updated Employee Roles":
+          connection.query("SELECT * FROM employees", function (err, res) {
+            if (err) throw err;
+            res.length > 0 && console.table(res);
+            ask
+              .prompt([
+                {
+                  type: "input",
+                  message: "Please enter the employee's id you wish to update:",
+                  name: "updateID",
+                  validate: (value) => {
+                    if (validator.isInt(value)) {
+                      return true;
+                    }
+                    return "Please enter valid employee id (#)";
+                  },
+                },
+                {
+                  type: "input",
+                  message: "Please enter their new role id:",
+                  name: "updateRoleID",
+                  validate: (value) => {
+                    if (validator.isInt(value)) {
+                      return true;
+                    }
+                    return "Please enter valid new role id (#)";
+                  },
+                },
+              ])
+              .then((answer) => {
+                connection.query(
+                  "UPDATE employees SET ? WHERE ?",
+                  [
+                    {
+                      role_id: answer.updateRoleID,
+                    },
+                    {
+                      id: answer.updateID,
+                    },
+                  ],
+                  function (err, res) {
+                    if (err) throw err;
+                    console.table(res);
+                    console.log("Employee has been updated!");
+                    inquireQ();
+                  }
+                );
+              });
+          });
           break;
 
-        case "See Manager Employees":
-          inquirer.prompt(questions).then((response) => {});
+        case "View Employees by Manager":
+          ask
+            .prompt({
+              type: "input",
+              message:
+                "Please enter the manager id for the employees you wish to view:",
+              name: "viewMngrsEmps",
+              validate: (value) => {
+                if (validator.isInt(value)) {
+                  return true;
+                }
+                return "Please enter valid manager id (#)";
+              },
+            })
+            .then((answer) => {
+              connection.query(
+                "SELECT * FROM employees WHERE ?",
+                [
+                  {
+                    manager_id: answer.viewMngrsEmps,
+                  },
+                ],
+                function (err, res) {
+                  if (err) throw err;
+                  console.table(res);
+                  console.log("Employee's manager has been updated!");
+                  inquireQ();
+                }
+              );
+            });
+          break;
+
+        case "Update Employee Managers":
+          connection.query("SELECT * FROM employees", function (err, res) {
+            if (err) throw err;
+            res.length > 0 && console.table(res);
+            ask
+              .prompt([
+                {
+                  type: "input",
+                  message:
+                    "Please enter the employee ID who's manager you'd like to change:",
+                  name: "updateMngr",
+                  validate: (value) => {
+                    if (validator.isInt(value)) {
+                      return true;
+                    }
+                    return "Please enter valid employee id (#)";
+                  },
+                },
+                {
+                  type: "input",
+                  message: "Please enter their new managers ID:",
+                  name: "updateMngrID",
+                  validate: (value) => {
+                    if (validator.isInt(value)) {
+                      return true;
+                    }
+                    return "Please enter valid manager id (#)";
+                  },
+                },
+              ])
+              .then((answer) => {
+                connection.query(
+                  "UPDATE employees SET ? WHERE ?",
+                  [
+                    {
+                      manager_id: answer.updateMngrID,
+                    },
+                    {
+                      id: answer.updateMngr,
+                    },
+                  ],
+                  function (err, res) {
+                    if (err) throw err;
+                    console.log("Employee's manager has been updated!");
+                    inquireQ();
+                  }
+                );
+              });
+          });
           break;
 
         case "Finish":
@@ -352,5 +479,3 @@ const inquireQ = () => {
       }
     });
 };
-
-
