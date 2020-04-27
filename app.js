@@ -2,6 +2,7 @@
 const ask = require("inquirer");
 const validator = require("validator");
 const CFonts = require("cfonts");
+const { printTable } = require("console-table-printer");
 
 // importing local files
 const connection = require("./connection");
@@ -313,7 +314,7 @@ const inquireQ = () => {
                 connection.query(
                   "DELETE FROM employees WHERE id=? ",
                   [answer.removeEmployee],
-                  function (err, res) {
+                  (err, res) => {
                     if (err) throw err;
                     connection.query("SELECT * FROM employees", (err, res) => {
                       if (err) throw err;
@@ -328,53 +329,59 @@ const inquireQ = () => {
           break;
 
         case "Updated Employee Roles":
-          connection.query("SELECT * FROM employees", (err, res) => {
+          connection.query("SELECT * FROM employees", (err, employees) => {
             if (err) throw err;
-            res.length > 0 && console.table(res);
-            ask
-              .prompt([
-                {
-                  type: "input",
-                  message: "Please enter the employee's id you wish to update:",
-                  name: "updateID",
-                  validate: (value) => {
-                    if (validator.isInt(value)) {
-                      return true;
-                    }
-                    return "Please enter valid employee id (#)";
-                  },
-                },
-                {
-                  type: "input",
-                  message: "Please enter their new role id:",
-                  name: "updateRoleID",
-                  validate: (value) => {
-                    if (validator.isInt(value)) {
-                      return true;
-                    }
-                    return "Please enter valid new role id (#)";
-                  },
-                },
-              ])
-              .then((answer) => {
-                connection.query(
-                  "UPDATE employees SET ? WHERE ?",
-                  [
-                    {
-                      role_id: answer.updateRoleID,
-                    },
-                    {
-                      id: answer.updateID,
-                    },
-                  ],
-                  (err, res) => {
-                    if (err) throw err;
-                    console.table(res);
-                    console.log("Employee has been updated!");
-                    inquireQ();
-                  }
-                );
-              });
+            connection.query("SELECT * FROM roles", (err, roles) => {
+              if (err) throw err;
+              //joining
+              connection.query(
+                "SELECT employees.id, employees.first_name, employees.last_name, roles.title FROM employees LEFT JOIN roles ON employees.role_id = roles.id",
+                (err, res) => {
+                  if (err) throw err;
+                  printTable(res);
+                  ask
+                    .prompt([
+                      {
+                        type: "list",
+                        message:
+                          "Please select the employee you wish to update:",
+                        choices: employees.map((employee) => ({
+                          value: employee.id,
+                          name: employee.last_name,
+                        })),
+                        name: "updateID",
+                      },
+                      {
+                        type: "list",
+                        message: "Please enter their new role id:",
+                        choices: roles.map((role) => ({
+                          value: role.id,
+                          name: role.title,
+                        })),
+                        name: "updateRoleID",
+                      },
+                    ])
+                    .then((answer) => {
+                      connection.query(
+                        "UPDATE employees SET ? WHERE ?",
+                        [
+                          {
+                            role_id: answer.updateRoleID,
+                          },
+                          {
+                            id: answer.updateID,
+                          },
+                        ],
+                        (err, res) => {
+                          if (err) throw err;
+                          console.log("Successfully updated!");
+                          inquireQ();
+                        }
+                      );
+                    });
+                }
+              );
+            });
           });
           break;
 
@@ -400,7 +407,7 @@ const inquireQ = () => {
                   ],
                   (err, res) => {
                     if (err) throw err;
-                    console.table(res);
+                    printTable(res);
                     inquireQ();
                   }
                 );
