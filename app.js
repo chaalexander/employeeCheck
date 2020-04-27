@@ -69,13 +69,12 @@ const inquireQ = () => {
 
           // ======= VIEW DEPARTMENTS=========
           case "View Departments":
-            connection.query("SELECT * FROM departments", (err, res) => {
-              if (err) throw err;
-              res.length > 0 && printTable(res);
-              inquireQ();
-            });
+            const viewDpt = await connection.query("SELECT * FROM departments");
+            printTable(viewDpt);
+            inquireQ();
             break;
 
+          // ====== DELETE DEPARTMENT=======
           case "Delete Departments":
             connection.query(
               "SELECT * FROM departments ",
@@ -115,59 +114,48 @@ const inquireQ = () => {
               }
             );
             break;
-
+          // ===== ADD ROLE======
           case "Add Role":
-            //view the roles
-            connection.query(
-              "SELECT * FROM departments",
-              (err, departments) => {
-                if (err) throw err;
-                res.length > 0 && printTable(departments);
-                ask
-                  .prompt([
-                    {
-                      type: "input",
-                      message: "What is the role title you want to add?",
-                      name: "title",
-                    },
-                    {
-                      type: "input",
-                      massage: "Please enter the salary for this role:",
-                      name: "salary",
-                      validate: (value) => {
-                        if (validator.isInt(value)) {
-                          return true;
-                        }
-                        return "Please enter a valid salary ex:(3000.00)";
-                      },
-                    },
-                    {
-                      type: "list",
-                      massage: "Please select the department for this role:",
-                      choices: departments.map((department) => ({
-                        value: department.id,
-                        name: department.name,
-                      })),
-                      name: "department_id",
-                    },
-                  ])
-                  .then((answer) => {
-                    connection.query(
-                      "INSERT INTO roles SET ?",
-                      {
-                        title: answer.title,
-                        salary: answer.salary,
-                        department_id: answer.department_id,
-                      },
-                      (err) => {
-                        if (err) throw err;
-                        console.log("Successfully added role!");
-                        inquireQ();
-                      }
-                    );
-                  });
-              }
+            const dept1 = await connection.query("SELECT * FROM departments");
+            const roleAdd = await ask.prompt([
+              {
+                type: "input",
+                message: "What is the role title you want to add?",
+                name: "title",
+              },
+              {
+                type: "input",
+                massage: "Please enter the salary for this role:",
+                name: "salary",
+                validate: (value) => {
+                  if (validator.isInt(value)) {
+                    return true;
+                  }
+                  return "Please enter a valid salary ex:(3000.00)";
+                },
+              },
+              {
+                type: "list",
+                massage: "Please select the department for this role:",
+                choices: dept1.map((department) => ({
+                  value: department.id,
+                  name: department.name,
+                })),
+                name: "department_id",
+              },
+            ]);
+            await connection.query("INSERT INTO roles SET ?", {
+              title: roleAdd.title,
+              salary: roleAdd.salary,
+              department_id: roleAdd.department_id,
+            });
+            console.log("Successfully added role!");
+            const addRole = await connection.query(
+              "SELECT roles.id, roles.title, departments.name AS departments FROM roles INNER JOIN departments ON roles.department_id= departments.id"
             );
+            printTable(addRole);
+            inquireQ();
+
             break;
 
           case "View Roles":
