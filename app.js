@@ -248,46 +248,30 @@ const inquireQ = () => {
             );
             printTable(viewRes);
             break;
+
           // ======= REMOVE EMPLOYEE=======
           case "Remove Employee":
-            connection.query("SELECT * FROM employees", (err, employees) => {
-              if (err) throw err;
-              res.length > 0 && printTable(res);
-              ask
-                .prompt([
-                  {
-                    type: "list",
-                    message:
-                      "Please select the employee you would like to remove.",
-                    choices: employees.map((employees) => ({
-                      value: employees.id,
-                      name: employees.last_name,
-                    })),
-
-                    name: "removeEmployee",
-                  },
-                ])
-                .then((answer) => {
-                  connection.query(
-                    "DELETE FROM employees WHERE id=? ",
-                    [answer.removeEmployee],
-                    (err, res) => {
-                      if (err) throw err;
-                      connection.query(
-                        "SELECT * FROM employees",
-                        (err, res) => {
-                          if (err) throw err;
-                          res.length > 0 && printTable(res);
-                          inquireQ();
-                        }
-                      );
-                    }
-                  );
-                });
+            const emp = await connection.query("SELECT * FROM employees");
+            const { removeEmployee } = await ask.prompt({
+              type: "list",
+              message: "Please select the employee you would like to remove.",
+              choices: emp.map((emp) => ({
+                value: emp.id,
+                name: emp.last_name,
+              })),
+              name: "removeEmployee",
             });
-
+            await connection.query("DELETE FROM employees WHERE id=? ", [
+              removeEmployee,
+            ]);
+            const viewEmpsLeft = await connection.query(
+              "SELECT * FROM employees"
+            );
+            printTable(viewEmpsLeft);
+            inquireQ();
             break;
 
+          // ===== UPDATED EMPLOYEE ROLES=======
           case "Updated Employee Roles":
             connection.query("SELECT * FROM employees", (err, employees) => {
               if (err) throw err;
