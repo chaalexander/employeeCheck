@@ -84,14 +84,18 @@ const inquireQ = () => {
           break;
 
         case "Delete Departments":
-          connection.query("SELECT * FROM departments ", (err, res) => {
+          connection.query("SELECT * FROM departments ", (err, departments) => {
             if (err) throw err;
             res.length > 0 && console.table(res);
             ask
               .prompt([
                 {
-                  type: "input",
-                  message: "Enter the department id you want to delete.",
+                  type: "list",
+                  message: "Select the department you would like to delete.",
+                  choices: departments.map((departments) => ({
+                    value: departments.id,
+                    name: departments.name,
+                  })),
                   name: "deleteDepartments",
                 },
               ])
@@ -99,7 +103,7 @@ const inquireQ = () => {
                 connection.query(
                   "DELETE FROM departments WHERE id=? ",
                   [answer.deleteDepartments],
-                  function (err, res) {
+                  (err, res) => {
                     if (err) throw err;
                     connection.query(
                       "SELECT * FROM departments",
@@ -177,7 +181,7 @@ const inquireQ = () => {
         case "Delete Roles":
           connection.query("SELECT * FROM roles ", (err, roles) => {
             if (err) throw err;
-            // res.length > 0 && console.table(res);
+            res.length > 0 && console.table(res);
             ask
               .prompt([
                 {
@@ -288,14 +292,20 @@ const inquireQ = () => {
           break;
 
         case "Remove Employee":
-          connection.query("SELECT * FROM employees", (err, res) => {
+          connection.query("SELECT * FROM employees", (err, employees) => {
             if (err) throw err;
             res.length > 0 && console.table(res);
             ask
               .prompt([
                 {
-                  type: "input",
-                  message: "Enter the ID of the employee you want to remove.",
+                  type: "list",
+                  message:
+                    "Please select the employee you would like to remove.",
+                  choices: employees.map((employees) => ({
+                    value: employees.id,
+                    name: employees.last_name,
+                  })),
+
                   name: "removeEmployee",
                 },
               ])
@@ -369,35 +379,33 @@ const inquireQ = () => {
           break;
 
         case "View Employees by Manager":
-          ask
-            .prompt({
-              type: "input",
-              message:
-                "Please enter the manager id for the employees you wish to view:",
-              name: "viewMngrsEmps",
-              validate: (value) => {
-                if (validator.isInt(value)) {
-                  return true;
-                }
-                return "Please enter valid manager id (#)";
-              },
-            })
-            .then((answer) => {
-              connection.query(
-                "SELECT * FROM employees WHERE ?",
-                [
-                  {
-                    manager_id: answer.viewMngrsEmps,
-                  },
-                ],
-                (err, res) => {
-                  if (err) throw err;
-                  console.table(res);
-                  console.log("Employee's manager has been updated!");
-                  inquireQ();
-                }
-              );
-            });
+          connection.query("SELECT * FROM employees ", (err, employees) => {
+            ask
+              .prompt({
+                type: "list",
+                message: "Please select the manager:",
+                choices: employees.map((employees) => ({
+                  value: employees.id,
+                  name: employees.last_name,
+                })),
+                name: "viewMngrsEmps",
+              })
+              .then((answer) => {
+                connection.query(
+                  "SELECT * FROM employees WHERE ?",
+                  [
+                    {
+                      manager_id: answer.viewMngrsEmps,
+                    },
+                  ],
+                  (err, res) => {
+                    if (err) throw err;
+                    console.table(res);
+                    inquireQ();
+                  }
+                );
+              });
+          });
           break;
 
         case "Update Employee Managers":
