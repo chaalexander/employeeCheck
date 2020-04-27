@@ -114,6 +114,7 @@ const inquireQ = () => {
               }
             );
             break;
+
           // ===== ADD ROLE======
           case "Add Role":
             const dept1 = await connection.query("SELECT * FROM departments");
@@ -157,16 +158,14 @@ const inquireQ = () => {
             inquireQ();
 
             break;
-
+          // ====VIEW ROLES======
           case "View Roles":
-            connection.query(
-              "SELECT  roles.id, roles.title, departments.name AS departments FROM roles INNER JOIN departments ON roles.department_id= departments.id",
-              (err, res) => {
-                if (err) throw err;
-                res.length > 0 && printTable(res);
-                inquireQ();
-              }
+            const viewRoles = await connection.query(
+              "SELECT  roles.id, roles.title, departments.name AS departments FROM roles INNER JOIN departments ON roles.department_id= departments.id"
             );
+            printTable(viewRoles);
+            inquireQ();
+
             break;
 
           case "Delete Roles":
@@ -201,88 +200,74 @@ const inquireQ = () => {
                 });
             });
             break;
-
+          // ==== VIEW EMPLOYEES=====
           case "View Employees":
-            connection.query(
-              "SELECT employees.id, employees.first_name, employees.last_name, roles.title FROM employees INNER JOIN roles ON employees.role_id = roles.id",
-              (err, res) => {
-                if (err) throw err;
-                res.length > 0 && printTable(res);
-                inquireQ();
-              }
+            const see = await connection.query(
+              "SELECT employees.id, employees.first_name, employees.last_name, roles.title FROM employees INNER JOIN roles ON employees.role_id = roles.id"
             );
+            printTable(see);
+            inquireQ();
             break;
-          case "Add Employee":
-            //view employees before you add one.
-            connection.query("SELECT * FROM roles", (err, roles) => {
-              if (err) throw err;
-              res.length > 0 && printTable(res);
-              connection.query("SELECT * FROM employees", (err, employees) => {
-                if (err) throw err;
-                res.length > 0 && printTable(res);
-                //ask the questions to add after displaying current ones
-                ask
-                  .prompt([
-                    {
-                      type: "input",
-                      message: "Please enter employee's first name:",
-                      name: "first_name",
-                      validate: (value) => {
-                        if (validator.isAlpha(value)) {
-                          return true;
-                        }
-                        return "Please enter valid first name (a-z)";
-                      },
-                    },
-                    {
-                      type: "input",
-                      message: "Please enter employee's last name:",
-                      name: "last_name",
-                      validate: (value) => {
-                        if (validator.isAlpha(value)) {
-                          return true;
-                        }
-                        return "Please enter valid last name (a-z)";
-                      },
-                    },
-                    {
-                      type: "list",
-                      message: "Please select employee's role:",
-                      choices: roles.map((role) => ({
-                        value: role.id,
-                        name: role.title,
-                      })),
-                      name: "role_id",
-                    },
-                    {
-                      type: "list",
-                      message: "Please select the manager for this employee:",
-                      choices: employees.map((employee) => ({
-                        value: employee.id,
-                        name: employee.last_name,
-                      })),
-                      name: "manager_id",
-                    },
-                  ])
-                  .then((answer) => {
-                    connection.query(
-                      "INSERT INTO employees SET ?",
-                      {
-                        first_name: answer.first_name,
-                        last_name: answer.last_name,
-                        role_id: answer.role_id,
-                        manager_id: answer.manager_id,
-                      },
-                      (err) => {
-                        if (err) throw err;
-                        console.log("Successfully added employee!");
 
-                        inquireQ();
-                      }
-                    );
-                  });
-              });
+          // ======ADD EMPLOYEE=====
+          case "Add Employee":
+            const roles = await connection.query("SELECT * FROM roles");
+            const employees = await connection.query("SELECT * FROM employees");
+            //ask the questions to add after displaying current ones
+            const addEmp = await ask.prompt([
+              {
+                type: "input",
+                message: "Please enter employee's first name:",
+                name: "first_name",
+                validate: (value) => {
+                  if (validator.isAlpha(value)) {
+                    return true;
+                  }
+                  return "Please enter valid first name (a-z)";
+                },
+              },
+              {
+                type: "input",
+                message: "Please enter employee's last name:",
+                name: "last_name",
+                validate: (value) => {
+                  if (validator.isAlpha(value)) {
+                    return true;
+                  }
+                  return "Please enter valid last name (a-z)";
+                },
+              },
+              {
+                type: "list",
+                message: "Please select employee's role:",
+                choices: roles.map((role) => ({
+                  value: role.id,
+                  name: role.title,
+                })),
+                name: "role_id",
+              },
+              {
+                type: "list",
+                message: "Please select the manager for this employee:",
+                choices: employees.map((employee) => ({
+                  value: employee.id,
+                  name: employee.last_name,
+                })),
+                name: "manager_id",
+              },
+            ]);
+            await connection.query("INSERT INTO employees SET ?", {
+              first_name: addEmp.first_name,
+              last_name: addEmp.last_name,
+              role_id: addEmp.role_id,
+              manager_id: addEmp.manager_id,
             });
+            console.log("Successfully added employee!");
+            inquireQ();
+            const viewRes = await connection.query(
+              "SELECT employees.id, employees.first_name, employees.last_name, roles.title FROM employees INNER JOIN roles ON employees.role_id = roles.id"
+            );
+            printTable(viewRes);
             break;
 
           case "Remove Employee":
