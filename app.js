@@ -409,33 +409,30 @@ const inquireQ = () => {
           break;
 
         case "Update Employee Managers":
-          connection.query("SELECT * FROM employees", (err, res) => {
+          connection.query("SELECT * FROM employees", (err, employees) => {
             if (err) throw err;
             res.length > 0 && console.table(res);
             ask
               .prompt([
                 {
-                  type: "input",
+                  type: "list",
                   message:
-                    "Please enter the employee ID who's manager you'd like to change:",
+                    "Please select the employee you would like to update:",
+                  choices: employees.map((employees) => ({
+                    value: employees.id,
+                    name: employees.last_name,
+                  })),
                   name: "updateMngr",
-                  validate: (value) => {
-                    if (validator.isInt(value)) {
-                      return true;
-                    }
-                    return "Please enter valid employee id (#)";
-                  },
                 },
                 {
-                  type: "input",
-                  message: "Please enter their new managers ID:",
+                  type: "list",
+                  message: "Please select the new Manager",
+                  choices: employees.map((employees) => ({
+                    value: employees.id,
+                    name: employees.last_name,
+                  })),
+
                   name: "updateMngrID",
-                  validate: (value) => {
-                    if (validator.isInt(value)) {
-                      return true;
-                    }
-                    return "Please enter valid manager id (#)";
-                  },
                 },
               ])
               .then((answer) => {
