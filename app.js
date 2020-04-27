@@ -61,7 +61,7 @@ const inquireQ = () => {
                 {
                   name: answer.department,
                 },
-                function (err) {
+                (err) => {
                   if (err) throw err;
                   console.log("Successfully added department!");
                   // show the departments
@@ -479,9 +479,9 @@ const inquireQ = () => {
 };
 
 CFonts.say("Employee Checker", {
-  font: "chrome",
+  font: "pallet",
   align: "center",
-  colors: ["magenta", "magenta", "magenta"],
+  colors: ["magenta", "candy"],
   background: "transparent",
   letterSpacing: 1,
   lineHeight: 1,
