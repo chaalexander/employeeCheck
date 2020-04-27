@@ -76,43 +76,30 @@ const inquireQ = () => {
 
           // ====== DELETE DEPARTMENT=======
           case "Delete Departments":
-            connection.query(
-              "SELECT * FROM departments ",
-              (err, departments) => {
-                if (err) throw err;
-                res.length > 0 && printTable(res);
-                ask
-                  .prompt([
-                    {
-                      type: "list",
-                      message:
-                        "Select the department you would like to delete.",
-                      choices: departments.map((departments) => ({
-                        value: departments.id,
-                        name: departments.name,
-                      })),
-                      name: "deleteDepartments",
-                    },
-                  ])
-                  .then((answer) => {
-                    connection.query(
-                      "DELETE FROM departments WHERE id=? ",
-                      [answer.deleteDepartments],
-                      (err, res) => {
-                        if (err) throw err;
-                        connection.query(
-                          "SELECT * FROM departments",
-                          (err, res) => {
-                            if (err) throw err;
-                            res.length > 0 && printTable(res);
-                            inquireQ();
-                          }
-                        );
-                      }
-                    );
-                  });
-              }
+            const dept2 = await connection.query("SELECT * FROM departments ");
+            printTable(dept2);
+            const { deleteDept } = await ask.prompt([
+              {
+                type: "list",
+                message: "Select the department you would like to delete.",
+                choices: dept2.map((dept2) => ({
+                  value: dept2.id,
+                  name: dept2.name,
+                })),
+                name: "deleteDept",
+              },
+            ]);
+
+            await connection.query("DELETE FROM departments WHERE id=? ", [
+              deleteDept,
+            ]);
+
+            const viewRemain = await connection.query(
+              "SELECT * FROM departments"
             );
+            printTable(viewRemain);
+            inquireQ();
+
             break;
 
           // ===== ADD ROLE======
@@ -167,7 +154,7 @@ const inquireQ = () => {
             inquireQ();
 
             break;
-
+          // ====DELETE ROLES====
           case "Delete Roles":
             const role = await connection.query("SELECT * FROM roles ");
             printTable(role);
