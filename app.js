@@ -17,7 +17,7 @@ connection.connect((err) => {
 const inquireQ = () => {
   ask
     .prompt([
-      // build or finish
+      
       {
         type: "list",
         message: "What would you like to do?",
@@ -216,11 +216,14 @@ const inquireQ = () => {
           break;
 
         case "View Employees":
-          connection.query("SELECT * FROM employees", (err, res) => {
-            if (err) throw err;
-            res.length > 0 && printTable(res);
-            inquireQ();
-          });
+          connection.query(
+            "SELECT employees.id, employees.first_name, employees.last_name, roles.title FROM employees INNER JOIN roles ON employees.role_id = roles.id",
+            (err, res) => {
+              if (err) throw err;
+              res.length > 0 && printTable(res);
+              inquireQ();
+            }
+          );
           break;
         case "Add Employee":
           //view employees before you add one.
