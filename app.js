@@ -172,17 +172,20 @@ const inquireQ = () => {
           break;
 
         case "View Roles":
-          connection.query("SELECT * FROM roles", (err, res) => {
-            if (err) throw err;
-            res.length > 0 && console.table(res);
-            inquireQ();
-          });
+          connection.query(
+            "SELECT roles.title, roles.id, departments.name AS departments FROM roles INNER JOIN departments ON roles.department_id= departments.id",
+            (err, res) => {
+              if (err) throw err;
+              res.length > 0 && printTable(res);
+              inquireQ();
+            }
+          );
           break;
 
         case "Delete Roles":
           connection.query("SELECT * FROM roles ", (err, roles) => {
             if (err) throw err;
-            res.length > 0 && console.table(res);
+            res.length > 0 && printTable(res);
             ask
               .prompt([
                 {
