@@ -17,7 +17,6 @@ connection.connect((err) => {
 const inquireQ = () => {
   ask
     .prompt([
-      
       {
         type: "list",
         message: "What would you like to do?",
@@ -479,10 +478,10 @@ const inquireQ = () => {
     });
 };
 
-CFonts.say("EMPLOYEE CHECK", {
+CFonts.say("Employee Checker", {
   font: "chrome",
   align: "center",
-  colors: ["candy", "candy", "candy"],
+  colors: ["magenta", "magenta", "magenta"],
   background: "transparent",
   letterSpacing: 1,
   lineHeight: 1,
