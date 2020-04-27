@@ -169,37 +169,29 @@ const inquireQ = () => {
             break;
 
           case "Delete Roles":
-            connection.query("SELECT * FROM roles ", (err, roles) => {
-              if (err) throw err;
-              res.length > 0 && printTable(res);
-              ask
-                .prompt([
-                  {
-                    type: "list",
-                    message: "Please select the role you wish to delete:",
-                    choices: roles.map((role) => ({
-                      value: role.id,
-                      name: role.title,
-                    })),
-                    name: "deleteRole",
-                  },
-                ])
-                .then((answer) => {
-                  connection.query(
-                    "DELETE FROM roles WHERE id=? ",
-                    [answer.deleteRole],
-                    (err, res) => {
-                      if (err) throw err;
-                      connection.query("SELECT * FROM roles", (err, res) => {
-                        if (err) throw err;
-                        res.length > 0 && printTable(res);
-                        inquireQ();
-                      });
-                    }
-                  );
-                });
-            });
+            const role = await connection.query("SELECT * FROM roles ");
+            printTable(role);
+            const { deleteRole } = await ask.prompt([
+              {
+                type: "list",
+                message: "Please select the role you wish to delete:",
+                choices: role.map((role) => ({
+                  value: role.id,
+                  name: role.title,
+                })),
+                name: "deleteRole",
+              },
+            ]);
+
+            await connection.query("DELETE FROM roles WHERE id=? ", [
+              deleteRole,
+            ]);
+            const viewChange = await connection.query("SELECT * FROM roles");
+
+            printTable(viewChange);
+            inquireQ();
             break;
+
           // ==== VIEW EMPLOYEES=====
           case "View Employees":
             const see = await connection.query(
@@ -269,7 +261,7 @@ const inquireQ = () => {
             );
             printTable(viewRes);
             break;
-
+          // ======= REMOVE EMPLOYEE=======
           case "Remove Employee":
             connection.query("SELECT * FROM employees", (err, employees) => {
               if (err) throw err;
