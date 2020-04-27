@@ -68,7 +68,7 @@ const inquireQ = () => {
                   // show the departments
                   connection.query("SELECT * FROM departments", (err, res) => {
                     if (err) throw err;
-                    res.length > 0 && console.table(res);
+                    res.length > 0 && printTable(res);
                     inquireQ();
                   });
                 }
@@ -79,7 +79,7 @@ const inquireQ = () => {
         case "View Departments":
           connection.query("SELECT * FROM departments", (err, res) => {
             if (err) throw err;
-            res.length > 0 && console.table(res);
+            res.length > 0 && printTable(res);
             inquireQ();
           });
           break;
@@ -87,7 +87,7 @@ const inquireQ = () => {
         case "Delete Departments":
           connection.query("SELECT * FROM departments ", (err, departments) => {
             if (err) throw err;
-            res.length > 0 && console.table(res);
+            res.length > 0 && printTable(res);
             ask
               .prompt([
                 {
@@ -110,7 +110,7 @@ const inquireQ = () => {
                       "SELECT * FROM departments",
                       (err, res) => {
                         if (err) throw err;
-                        res.length > 0 && console.table(res);
+                        res.length > 0 && printTable(res);
                         inquireQ();
                       }
                     );
@@ -124,7 +124,7 @@ const inquireQ = () => {
           //view the roles
           connection.query("SELECT * FROM departments", (err, departments) => {
             if (err) throw err;
-            // res.length > 0 && console.table(departments);
+            res.length > 0 && printTable(departments);
             ask
               .prompt([
                 {
@@ -173,7 +173,7 @@ const inquireQ = () => {
 
         case "View Roles":
           connection.query(
-            "SELECT roles.title, roles.id, departments.name AS departments FROM roles INNER JOIN departments ON roles.department_id= departments.id",
+            "SELECT  roles.id, roles.title, departments.name AS departments FROM roles INNER JOIN departments ON roles.department_id= departments.id",
             (err, res) => {
               if (err) throw err;
               res.length > 0 && printTable(res);
@@ -202,11 +202,11 @@ const inquireQ = () => {
                 connection.query(
                   "DELETE FROM roles WHERE id=? ",
                   [answer.deleteRole],
-                  function (err, res) {
+                  (err, res) => {
                     if (err) throw err;
                     connection.query("SELECT * FROM roles", (err, res) => {
                       if (err) throw err;
-                      res.length > 0 && console.table(res);
+                      res.length > 0 && printTable(res);
                       inquireQ();
                     });
                   }
@@ -218,7 +218,7 @@ const inquireQ = () => {
         case "View Employees":
           connection.query("SELECT * FROM employees", (err, res) => {
             if (err) throw err;
-            res.length > 0 && console.table(res);
+            res.length > 0 && printTable(res);
             inquireQ();
           });
           break;
@@ -226,10 +226,10 @@ const inquireQ = () => {
           //view employees before you add one.
           connection.query("SELECT * FROM roles", (err, roles) => {
             if (err) throw err;
-            res.length > 0 && console.table(res);
+            res.length > 0 && printTable(res);
             connection.query("SELECT * FROM employees", (err, employees) => {
               if (err) throw err;
-              res.length > 0 && console.table(res);
+              res.length > 0 && printTable(res);
               //ask the questions to add after displaying current ones
               ask
                 .prompt([
@@ -286,7 +286,7 @@ const inquireQ = () => {
                     (err) => {
                       if (err) throw err;
                       console.log("Successfully added employee!");
-                      //view the roles
+
                       inquireQ();
                     }
                   );
@@ -298,7 +298,7 @@ const inquireQ = () => {
         case "Remove Employee":
           connection.query("SELECT * FROM employees", (err, employees) => {
             if (err) throw err;
-            res.length > 0 && console.table(res);
+            res.length > 0 && printTable(res);
             ask
               .prompt([
                 {
@@ -321,7 +321,7 @@ const inquireQ = () => {
                     if (err) throw err;
                     connection.query("SELECT * FROM employees", (err, res) => {
                       if (err) throw err;
-                      res.length > 0 && console.table(res);
+                      res.length > 0 && printTable(res);
                       inquireQ();
                     });
                   }
@@ -421,7 +421,7 @@ const inquireQ = () => {
         case "Update Employee Managers":
           connection.query("SELECT * FROM employees", (err, employees) => {
             if (err) throw err;
-            res.length > 0 && console.table(res);
+            res.length > 0 && printTable(res);
             ask
               .prompt([
                 {
@@ -475,3 +475,18 @@ const inquireQ = () => {
       }
     });
 };
+
+CFonts.say("EMPLOYEE CHECK", {
+  font: "chrome",
+  align: "center",
+  colors: ["candy", "candy", "candy"],
+  background: "transparent",
+  letterSpacing: 1,
+  lineHeight: 1,
+  space: true,
+  maxLength: "0",
+  gradient: true,
+  independentGradient: false,
+  transitionGradient: false,
+  env: "node",
+});
