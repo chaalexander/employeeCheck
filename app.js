@@ -1,4 +1,3 @@
-// importing external npm packages
 const ask = require("inquirer");
 const validator = require("validator");
 const CFonts = require("cfonts");
@@ -274,60 +273,43 @@ const inquireQ = () => {
 
           // ===== UPDATED EMPLOYEE ROLES=======
           case "Updated Employee Roles":
-            connection.query("SELECT * FROM employees", (err, employees) => {
-              if (err) throw err;
-              connection.query("SELECT * FROM roles", (err, roles) => {
-                if (err) throw err;
-                //joining
-                connection.query(
-                  "SELECT employees.id, employees.first_name, employees.last_name, roles.title FROM employees LEFT JOIN roles ON employees.role_id = roles.id",
-                  (err, res) => {
-                    if (err) throw err;
-                    printTable(res);
-                    ask
-                      .prompt([
-                        {
-                          type: "list",
-                          message:
-                            "Please select the employee you wish to update:",
-                          choices: employees.map((employee) => ({
-                            value: employee.id,
-                            name: employee.last_name,
-                          })),
-                          name: "updateID",
-                        },
-                        {
-                          type: "list",
-                          message: "Please enter their new role id:",
-                          choices: roles.map((role) => ({
-                            value: role.id,
-                            name: role.title,
-                          })),
-                          name: "updateRoleID",
-                        },
-                      ])
-                      .then((answer) => {
-                        connection.query(
-                          "UPDATE employees SET ? WHERE ?",
-                          [
-                            {
-                              role_id: answer.updateRoleID,
-                            },
-                            {
-                              id: answer.updateID,
-                            },
-                          ],
-                          (err, res) => {
-                            if (err) throw err;
-                            console.log("Successfully updated!");
-                            inquireQ();
-                          }
-                        );
-                      });
-                  }
-                );
-              });
-            });
+            const emps2 = await connection.query("SELECT * FROM employees");
+            const roles2 = await connection.query("SELECT * FROM roles");
+            const joinQ = await ask.prompt([
+              {
+                type: "list",
+                message: "Please select the employee you wish to update:",
+                choices: emps2.map((employee) => ({
+                  value: employee.id,
+                  name: employee.last_name,
+                })),
+                name: "updateID",
+              },
+              {
+                type: "list",
+                message: "Please enter their new role id:",
+                choices: roles2.map((role) => ({
+                  value: role.id,
+                  name: role.title,
+                })),
+                name: "updateRoleID",
+              },
+            ]);
+            await connection.query("UPDATE employees SET ? WHERE ?", [
+              {
+                role_id: joinQ.updateRoleID,
+              },
+              {
+                id: joinQ.updateID,
+              },
+            ]);
+            const join1 = await connection.query(
+              "SELECT employees.id, employees.first_name, employees.last_name, roles.title FROM employees LEFT JOIN roles ON employees.role_id = roles.id"
+            );
+            printTable(join1);
+            console.log("Successfully updated!");
+            inquireQ();
+
             break;
           // ====== VIEW EMPLOYEES BY MANAGER=======
           case "View Employees by Manager":
