@@ -34,6 +34,7 @@ const inquireQ = () => {
           "View Employees by Manager",
           "Update Employee Managers",
           "Remove Employee",
+          "View Budget by Department",
           "Finish",
         ],
         name: "userFunction",
@@ -148,7 +149,7 @@ const inquireQ = () => {
           // ====VIEW ROLES======
           case "View Roles":
             const viewRoles = await connection.query(
-              "SELECT  roles.id, roles.title, departments.name AS departments FROM roles INNER JOIN departments ON roles.department_id= departments.id"
+              "SELECT  roles.id, roles.title, roles.salary, departments.name AS departments FROM roles INNER JOIN departments ON roles.department_id= departments.id"
             );
             printTable(viewRoles);
             inquireQ();
@@ -328,7 +329,7 @@ const inquireQ = () => {
               });
             });
             break;
-
+          // ====== VIEW EMPLOYEES BY MANAGER=======
           case "View Employees by Manager":
             connection.query("SELECT * FROM employees ", (err, employees) => {
               ask
@@ -358,7 +359,7 @@ const inquireQ = () => {
                 });
             });
             break;
-
+          // ===== UPDATE EMPLOYEE MANAGER=======
           case "Update Employee Managers":
             connection.query("SELECT * FROM employees", (err, employees) => {
               if (err) throw err;
@@ -406,7 +407,31 @@ const inquireQ = () => {
                 });
             });
             break;
+          // =======VIEW BUDGET BY DEPARTMENT======
+          case "View Budget by Department":
+            const budgetTime = await connection.query(
+              "SELECT * FROM departments"
+            );
+            const { budget } = await ask.prompt({
+              type: "list",
+              message: "Please select the department's budget you wish to view",
+              choices: budgetTime.map((department) => ({
+                value: department.id,
+                name: department.name,
+              })),
+              name: "budget",
+            });
+            const budgetDept = await connection.query(
+              "SELECT departments.id, roles.id AS role_id, roles.salary, employees.last_name FROM departments INNER JOIN roles ON roles.department_id = departments.id INNER JOIN employees ON employees.role_id = roles.id WHERE departments.id=?",
+              [budget]
+            );
+            printTable(budgetDept);
+            let salary = budgetDept.reduce((sum, row) => sum + row.salary, 0);
+            console.log(`This departments budget is ${salary}`);
+            inquireQ();
+            break;
 
+          // =======FINISH======
           case "Finish":
             connection.end();
             break;
