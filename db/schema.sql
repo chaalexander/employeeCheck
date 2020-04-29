@@ -24,7 +24,6 @@ CREATE TABLE employees(
 id INTEGER(10)AUTO_INCREMENT  NOT NULL ,
 first_name VARCHAR(45) NOT NULL,
 last_name VARCHAR(45) NOT NULL,
--- join in
 role_id INTEGER(10) NOT NULL,
 manager_id INTEGER(10),
 PRIMARY KEY(id),

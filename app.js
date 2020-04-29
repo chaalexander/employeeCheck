@@ -192,6 +192,12 @@ const inquireQ = () => {
           case "Add Employee":
             const roles = await connection.query("SELECT * FROM roles");
             const employees = await connection.query("SELECT * FROM employees");
+            const employeeChoices = employees.map((employee) => ({
+              value: employee.id,
+              name: employee.last_name,
+            }));
+
+            employeeChoices.push({ value: null, name: "None" });
 
             const addEmp = await ask.prompt([
               {
@@ -228,10 +234,7 @@ const inquireQ = () => {
               {
                 type: "list",
                 message: "Please select the manager for this employee:",
-                choices: employees.map((employee) => ({
-                  value: employee.id,
-                  name: employee.last_name,
-                })),
+                choices: employeeChoices,
                 name: "manager_id",
               },
             ]);
@@ -242,11 +245,11 @@ const inquireQ = () => {
               manager_id: addEmp.manager_id,
             });
             console.log("Successfully added employee!");
-            inquireQ();
             const viewRes = await connection.query(
               "SELECT employees.id, employees.first_name, employees.last_name, roles.title FROM employees INNER JOIN roles ON employees.role_id = roles.id"
             );
             printTable(viewRes);
+            inquireQ();
             break;
 
           // ======= REMOVE EMPLOYEE=======
