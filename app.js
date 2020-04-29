@@ -192,7 +192,7 @@ const inquireQ = () => {
           case "Add Employee":
             const roles = await connection.query("SELECT * FROM roles");
             const employees = await connection.query("SELECT * FROM employees");
-            //ask the questions to add after displaying current ones
+
             const addEmp = await ask.prompt([
               {
                 type: "input",
@@ -314,33 +314,30 @@ const inquireQ = () => {
 
           // ====== VIEW EMPLOYEES BY MANAGER=======
           case "View Employees by Manager":
-            connection.query("SELECT * FROM employees ", (err, employees) => {
-              ask
-                .prompt({
-                  type: "list",
-                  message: "Please select the manager:",
-                  choices: employees.map((employees) => ({
-                    value: employees.id,
-                    name: employees.last_name,
-                  })),
-                  name: "viewMngrsEmps",
-                })
-                .then((answer) => {
-                  connection.query(
-                    "SELECT * FROM employees WHERE ?",
-                    [
-                      {
-                        manager_id: answer.viewMngrsEmps,
-                      },
-                    ],
-                    (err, res) => {
-                      if (err) throw err;
-                      printTable(res);
-                      inquireQ();
-                    }
-                  );
-                });
+            const seeEmp = await connection.query(
+              "SELECT employees.id, employees.first_name, employees.last_name, roles.title FROM employees LEFT JOIN roles ON employees.role_id = roles.id "
+            );
+            printTable(seeEmp);
+            const { viewMngrsEmps } = await ask.prompt({
+              type: "list",
+              message: "Please select the manager:",
+              choices: seeEmp.map((employees) => ({
+                value: employees.id,
+                name: employees.last_name,
+              })),
+              name: "viewMngrsEmps",
             });
+            const seeMgr = await connection.query(
+              "SELECT * FROM employees WHERE ?",
+              [
+                {
+                  manager_id: viewMngrsEmps,
+                },
+              ]
+            );
+            printTable(seeMgr);
+            inquireQ();
+
             break;
 
           // ===== UPDATE EMPLOYEE MANAGER=======
