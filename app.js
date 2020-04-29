@@ -3,7 +3,7 @@ const validator = require("validator");
 const CFonts = require("cfonts");
 const { printTable } = require("console-table-printer");
 const util = require("util");
-const connection = require("./connection");
+const connection = require("./db/connection");
 
 connection.query = util.promisify(connection.query);
 
@@ -311,6 +311,7 @@ const inquireQ = () => {
             inquireQ();
 
             break;
+
           // ====== VIEW EMPLOYEES BY MANAGER=======
           case "View Employees by Manager":
             connection.query("SELECT * FROM employees ", (err, employees) => {
@@ -341,54 +342,47 @@ const inquireQ = () => {
                 });
             });
             break;
+
           // ===== UPDATE EMPLOYEE MANAGER=======
           case "Update Employee Managers":
-            connection.query("SELECT * FROM employees", (err, employees) => {
-              if (err) throw err;
-              res.length > 0 && printTable(res);
-              ask
-                .prompt([
-                  {
-                    type: "list",
-                    message:
-                      "Please select the employee you would like to update:",
-                    choices: employees.map((employees) => ({
-                      value: employees.id,
-                      name: employees.last_name,
-                    })),
-                    name: "updateMngr",
-                  },
-                  {
-                    type: "list",
-                    message: "Please select the new Manager",
-                    choices: employees.map((employees) => ({
-                      value: employees.id,
-                      name: employees.last_name,
-                    })),
+            const joinEmp = await connection.query(
+              "SELECT employees.id, employees.first_name, employees.last_name, employees.manager_id, roles.title FROM employees LEFT JOIN roles ON employees.role_id = roles.id"
+            );
+            printTable(joinEmp);
+            const updateMngrs = await ask.prompt([
+              {
+                type: "list",
+                message: "Please select the employee you would like to update:",
+                choices: joinEmp.map((employees) => ({
+                  value: employees.id,
+                  name: employees.last_name,
+                })),
+                name: "updateMngr",
+              },
+              {
+                type: "list",
+                message: "Please select the new Manager",
+                choices: joinEmp.map((employees) => ({
+                  value: employees.id,
+                  name: employees.last_name,
+                })),
 
-                    name: "updateMngrID",
-                  },
-                ])
-                .then((answer) => {
-                  connection.query(
-                    "UPDATE employees SET ? WHERE ?",
-                    [
-                      {
-                        manager_id: answer.updateMngrID,
-                      },
-                      {
-                        id: answer.updateMngr,
-                      },
-                    ],
-                    (err, res) => {
-                      if (err) throw err;
-                      console.log("Employee's manager has been updated!");
-                      inquireQ();
-                    }
-                  );
-                });
-            });
+                name: "updateMngrID",
+              },
+            ]);
+            await connection.query("UPDATE employees SET ? WHERE ?", [
+              {
+                manager_id: updateMngrs.updateMngrID,
+              },
+              {
+                id: updateMngrs.updateMngr,
+              },
+            ]);
+            console.log("Employee's manager has been updated!");
+            inquireQ();
+
             break;
+
           // =======VIEW BUDGET BY DEPARTMENT======
           case "View Budget by Department":
             const budgetTime = await connection.query(
@@ -427,10 +421,10 @@ const inquireQ = () => {
     });
 };
 
-CFonts.say("Employee Checker", {
-  font: "pallet",
+CFonts.say("Welcome to|Employee Checker", {
+  font: "tiny",
   align: "center",
-  colors: ["magenta", "candy"],
+  colors: ["candy"],
   background: "transparent",
   letterSpacing: 1,
   lineHeight: 1,
