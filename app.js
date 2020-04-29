@@ -390,7 +390,7 @@ const inquireQ = async () => {
           name: "budget",
         });
         const budgetDept = await connection.query(
-          "SELECT departments.id, roles.id AS role_id, roles.salary, employees.last_name FROM departments INNER JOIN roles ON roles.department_id = departments.id INNER JOIN employees ON employees.role_id = roles.id WHERE departments.id=?",
+          "SELECT departments.id, roles.title AS role_id, roles.salary, employees.last_name FROM departments INNER JOIN roles ON roles.department_id = departments.id INNER JOIN employees ON employees.role_id = roles.id WHERE departments.id=?",
           [budget]
         );
         printTable(budgetDept);
