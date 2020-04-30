@@ -312,7 +312,7 @@ const inquireQ = async () => {
       // ====== VIEW EMPLOYEES BY MANAGER=======
       case "View Employees by Manager":
         const seeEmp = await connection.query(
-          "SELECT employees.id, employees.first_name, employees.last_name, roles.title FROM employees LEFT JOIN roles ON employees.role_id = roles.id "
+          "SELECT employees.id, employees.first_name, employees.last_name, roles.title AS role_id FROM employees LEFT JOIN roles ON employees.role_id = roles.id "
         );
         printTable(seeEmp);
         const { viewMngrsEmps } = await ask.prompt({
@@ -340,7 +340,7 @@ const inquireQ = async () => {
       // ===== UPDATE EMPLOYEE MANAGER=======
       case "Update Employee Managers":
         const joinEmp = await connection.query(
-          "SELECT employees.id, employees.first_name, employees.last_name, employees.manager_id, roles.title FROM employees LEFT JOIN roles ON employees.role_id = roles.id"
+          "SELECT employees.id, employees.first_name, employees.last_name, employees.manager_id, roles.title AS role_id FROM employees LEFT JOIN roles ON employees.role_id = roles.id"
         );
         printTable(joinEmp);
         const updateMngrs = await ask.prompt([
@@ -373,6 +373,7 @@ const inquireQ = async () => {
           },
         ]);
         console.log("Employee's manager has been updated!");
+
         inquireQ();
 
         break;
