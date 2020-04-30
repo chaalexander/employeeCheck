@@ -312,7 +312,7 @@ const inquireQ = async () => {
       // ====== VIEW EMPLOYEES BY MANAGER=======
       case "View Employees by Manager":
         const seeEmp = await connection.query(
-          "SELECT employees.id, employees.first_name, employees.last_name, roles.title AS role_id FROM employees LEFT JOIN roles ON employees.role_id = roles.id "
+          "SELECT employees.id, employees.first_name, employees.last_name, manager_id, roles.title AS role_id FROM employees LEFT JOIN roles ON employees.role_id = roles.id "
         );
         printTable(seeEmp);
         const { viewMngrsEmps } = await ask.prompt({
@@ -324,6 +324,7 @@ const inquireQ = async () => {
           })),
           name: "viewMngrsEmps",
         });
+
         const seeMgr = await connection.query(
           "SELECT * FROM employees WHERE ?",
           [
@@ -332,7 +333,13 @@ const inquireQ = async () => {
             },
           ]
         );
-        printTable(seeMgr);
+
+        if (seeMgr.length === 0) {
+          console.log("No Employee under this Manager");
+        } else {
+          printTable(seeMgr);
+        }
+
         inquireQ();
 
         break;
