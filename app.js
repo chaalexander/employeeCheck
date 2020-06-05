@@ -4,6 +4,11 @@ const CFonts = require("cfonts");
 const { printTable } = require("console-table-printer");
 const util = require("util");
 const connection = require("./db/connection");
+const compression = require("compression");
+const express = require("express");
+const app = express();
+
+app.use(compression());
 
 connection.query = util.promisify(connection.query);
 
@@ -192,23 +197,11 @@ const inquireQ = async () => {
             type: "input",
             message: "Please enter employee's first name:",
             name: "first_name",
-            validate: (value) => {
-              if (validator.isAlpha(value)) {
-                return true;
-              }
-              return "Please enter valid first name (a-z)";
-            },
           },
           {
             type: "input",
             message: "Please enter employee's last name:",
             name: "last_name",
-            validate: (value) => {
-              if (validator.isAlpha(value)) {
-                return true;
-              }
-              return "Please enter valid last name (a-z)";
-            },
           },
           {
             type: "list",
