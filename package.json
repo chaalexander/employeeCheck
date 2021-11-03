@@ -25,6 +25,6 @@
     "express": "^4.17.1",
     "inquirer": "^7.1.0",
     "mysql": "^2.18.1",
-    "validator": "^13.0.0"
+    "validator": "^13.7.0"
   }
 }
